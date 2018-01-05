@@ -162,12 +162,14 @@ public class Bank {
      * @return true if successful
      */
     private boolean withdrawValueFromAccount(Account account, double valueToWithdraw) {
+        boolean result;
         if (valueToWithdraw > account.getValue()) {
-            return false;
+            result = false;
         } else {
             account.setValue(account.getValue() - valueToWithdraw);
-            return true;
+            result = true;
         }
+        return result;
     }
 
 }
