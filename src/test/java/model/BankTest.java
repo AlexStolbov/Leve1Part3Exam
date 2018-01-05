@@ -21,7 +21,7 @@ public class BankTest {
 
         User findUser = bank.findUserByPassport(passport);
 
-        assertThat(findUser == user, is(true));
+        assertThat(findUser, is(user));
     }
 
     @Test
