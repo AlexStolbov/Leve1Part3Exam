@@ -1,6 +1,7 @@
 package model;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Bank where clients save their money.
@@ -127,23 +128,25 @@ public class Bank {
      * @return client
      */
     public User findUserByPassport(String passportFind) {
-        for (User currUser : userAccounts.keySet()) {
-            if (currUser.getPassport().equals(passportFind)) {
-                return currUser;
-            }
-        }
-        return null;
+//        for (User currUser : userAccounts.keySet()) {
+//            if (currUser.getPassport().equals(passportFind)) {
+//                return currUser;
+//            }
+//        }
+//        return null;
+        return userAccounts.keySet().stream().filter(us -> us.getPassport().equals(passportFind)).findAny().orElse(null);
     }
 
     //
     private Account findAccountByRequisite(User user, String requisiteFind) {
-        Account result = null;
-        for (Account currAccount : userAccounts.get(user)) {
-            if (currAccount.getRequisites().equals(requisiteFind)) {
-                result = currAccount;
-            }
-        }
-        return result;
+//        Account result = null;
+//        for (Account currAccount : userAccounts.get(user)) {
+//            if (currAccount.getRequisites().equals(requisiteFind)) {
+//                result = currAccount;
+//            }
+//        }
+//        return result;
+        return userAccounts.get(user).stream().filter(acc -> acc.getRequisites().equals(requisiteFind)).findAny().orElse(null);
     }
 
     /**
