@@ -1,9 +1,8 @@
 package model;
 
 import org.junit.Test;
-
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.hamcrest.core.Is.is;
@@ -87,9 +86,12 @@ public class BankTest {
 
         bank.addAccountToUser(passport, account);
 
-        List<Account> usersAccount = bank.getUserAccounts(passport);
+        Optional<List<Account>> usersAccount = bank.getUserAccounts(passport);
+        assert usersAccount.isPresent();
+        if (usersAccount.isPresent()) {
+            assertThat(usersAccount.get().contains(account), is(true));
+        }
 
-        assertThat(usersAccount.contains(account), is(true));
     }
 
     @Test
@@ -104,9 +106,7 @@ public class BankTest {
         bank.addAccountToUser(passport, account1);
         bank.addAccountToUser(passport, account2);
 
-        List<Account> usersAccount = bank.getUserAccounts(passport);
-
-        assertThat(usersAccount.size(), is(2));
+        assertThat(bank.getUserAccounts(passport).get().size(), is(2));
     }
 
     @Test
@@ -120,9 +120,7 @@ public class BankTest {
         bank.addAccountToUser(passport, account1);
         bank.addAccountToUser(passport, account1);
 
-        List<Account> usersAccount = bank.getUserAccounts(passport);
-
-        assertThat(usersAccount.size(), is(1));
+        assertThat(bank.getUserAccounts(passport).get().size(), is(1));
     }
 
     @Test
@@ -136,9 +134,7 @@ public class BankTest {
         bank.addAccountToUser(passport, account);
         bank.deleteAccountFromUser(passport, account);
 
-        List<Account> usersAccount = bank.getUserAccounts(passport);
-
-        assertThat(usersAccount.contains(account), is(false));
+        assertThat(bank.getUserAccounts(passport).get().contains(account), is(false));
     }
 
 
@@ -161,7 +157,7 @@ public class BankTest {
         boolean result = bank.transferMoney(srcPassport, srcRequisite, distPassport, distRequisite, 10);
         assertThat(result, is(true));
 
-        Account steveAccount = bank.getUserAccounts(distPassport).get(0);
+        Account steveAccount = bank.getUserAccounts(distPassport).get().get(0);
         assertThat(steveAccount.getValue(), is(10.0d));
 
 

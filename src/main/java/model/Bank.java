@@ -42,12 +42,11 @@ public class Bank {
      * @param account account that we add.
      */
     public void addAccountToUser(String passport, Account account) {
-        User findUser = findUserByPassport(passport);
-        if (findUser != null) {
-            if (!getUserAccounts(passport).contains(account)) {
-                userAccounts.get(findUser).add(account);
+        getUserAccounts(passport).ifPresent(accounts -> {
+            if (!accounts.contains(account)) {
+                accounts.add(account);
             }
-        }
+        });
     }
 
     /**
@@ -56,10 +55,7 @@ public class Bank {
      * @param account account that we deleted
      */
     public void deleteAccountFromUser(String passport, Account account) {
-        User findUser = findUserByPassport(passport);
-        if (findUser != null) {
-            userAccounts.get(findUser).remove(account);
-        }
+        getUserAccounts(passport).ifPresent(accounts -> accounts.remove(account));
     }
 
     /**
@@ -75,18 +71,8 @@ public class Bank {
      * @param passport client's passport
      * @return all client's accounts
      */
-    public List<Account> getUserAccounts(String passport) {
-
-        List<Account> result;
-
-        User findUser = findUserByPassport(passport);
-        if (findUser != null) {
-            result = userAccounts.get(findUser);
-        } else {
-            result = new LinkedList<>();
-        }
-
-        return result;
+    public Optional<List<Account>> getUserAccounts(String passport) {
+        return Optional.ofNullable(userAccounts.get(findUserByPassport(passport)));
     }
 
     /**
@@ -101,22 +87,13 @@ public class Bank {
      * @return true if transfer successful.
      */
     public boolean transferMoney(String srcPassport, String srcRequisite, String destPassport, String destRequisite, double amount) {
-
         boolean result = false;
-
-        User srcUser = findUserByPassport(srcPassport);
-        User destUser = findUserByPassport(destPassport);
-        if (srcUser != null && destUser != null) {
-
-            Account srcAccount = findAccountByRequisite(srcUser, srcRequisite);
-            Account destAccount = findAccountByRequisite(destUser, destRequisite);
-            if (srcAccount != null && destAccount != null) {
-
-                boolean resultOfWithdraw = withdrawValueFromAccount(srcAccount, amount);
-                if (resultOfWithdraw) {
-                    addValueToAccount(destAccount, amount);
-                    result = true;
-                }
+        Account srcAccount = findAccountByRequisite(findUserByPassport(srcPassport), srcRequisite);
+        Account destAccount = findAccountByRequisite(findUserByPassport(destPassport), destRequisite);
+        if (srcAccount != null && destAccount != null) {
+            if (withdrawValueFromAccount(srcAccount, amount)) {
+                addValueToAccount(destAccount, amount);
+                result = true;
             }
         }
         return result;
@@ -128,24 +105,16 @@ public class Bank {
      * @return client
      */
     public User findUserByPassport(String passportFind) {
-//        for (User currUser : userAccounts.keySet()) {
-//            if (currUser.getPassport().equals(passportFind)) {
-//                return currUser;
-//            }
-//        }
-//        return null;
         return userAccounts.keySet().stream().filter(us -> us.getPassport().equals(passportFind)).findAny().orElse(null);
     }
 
-    //
+    /**
+     * Возвращает счет заданного клиента по реквизитам.
+     * @param user клиент
+     * @param requisiteFind реквизиты счета
+     * @return счет
+     */
     private Account findAccountByRequisite(User user, String requisiteFind) {
-//        Account result = null;
-//        for (Account currAccount : userAccounts.get(user)) {
-//            if (currAccount.getRequisites().equals(requisiteFind)) {
-//                result = currAccount;
-//            }
-//        }
-//        return result;
         return userAccounts.get(user).stream().filter(acc -> acc.getRequisites().equals(requisiteFind)).findAny().orElse(null);
     }
 
